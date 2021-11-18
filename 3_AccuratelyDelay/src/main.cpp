@@ -29,7 +29,7 @@ void setup() {
     128,            // Stack size
     NULL,           // Parameter to pass to function
     2,              // Priority, (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    &Task_Handle1
+    &Task_Handle2
   );
 }
 

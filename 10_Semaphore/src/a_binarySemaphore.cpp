@@ -45,10 +45,10 @@
 //   while(1)
 //   {
 //    xSemaphoreTake(xBinarySemaphore,portMAX_DELAY);
-//    Serial.println("Inside LedOnTask");
+//    Serial.println("Inside LedOnTask --------------------");
 //    digitalWrite(LED,LOW);
-//    vTaskDelay(100);
 //    xSemaphoreGive(xBinarySemaphore);
+//    vTaskDelay(1);
 //   }
 // }
 
@@ -57,9 +57,9 @@
 //   while(1)
 //   {
 //     xSemaphoreTake(xBinarySemaphore,portMAX_DELAY);
-//     Serial.println("Inside LedffTask");
+//     Serial.println("Inside LedffTask *******************");
 //     digitalWrite(LED,HIGH);
-//     vTaskDelay(100);
 //     xSemaphoreGive(xBinarySemaphore);
+//     vTaskDelay(1);
 //   }
 // }

@@ -51,3 +51,89 @@ pio lib install "feilipu/FreeRTOS"
 
 
 # 1_BlinkLed
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+RTC -----------------------------------------------------------
+
+
+
+#include <Arduino.h>
+#include <RTC.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+ 
+RTC rtc;
+int g_year    = 2019;
+int g_mon     = 5;
+int g_day     = 29;
+int g_hour    = 9;
+int g_min     = 20;
+int g_sec     = 55;
+int g_week    = RTC_WEEK_WEDNESDAY;
+void rtcAlarmISR();
+ 
+SemaphoreHandle_t xBinarySemaphore;
+void vHandlerTask(void *pvParameters);
+void vPeriodicTask(void *pvParameters);
+ 
+void setup(){
+  Serial.begin(9600);
+  pinMode(PIN_LED1, OUTPUT); // led for alarm
+  digitalWrite(PIN_LED1, LOW); //turn off
+   
+  rtc.begin();
+  rtc.setDateTime(g_year, g_mon, g_day, g_hour, g_min, g_sec, g_week);
+  rtc.attachAlarmHandler(rtcAlarmISR);
+  rtc.setAlarmTime(g_hour, g_min + 1, g_week);
+  rtc.alarmOn();
+   
+  xBinarySemaphore = xSemaphoreCreateBinary();
+  xTaskCreate( vHandlerTask, "Handler", 512, NULL, 3, NULL );
+  xTaskCreate( vPeriodicTask, "Periodic", 512, NULL, 2, NULL );
+}
+ 
+void loop(){
+  delay(100); // entering Blocked State
+}
+ 
+void rtcAlarmISR()
+{
+  xSemaphoreGiveFromISR( xBinarySemaphore, pdFALSE );
+}
+ 
+void vHandlerTask(void *pvParameters){
+  while(1){
+    xSemaphoreTake(xBinarySemaphore, portMAX_DELAY);
+    Serial.println("Got semaphore for alarm ");
+    digitalWrite(PIN_LED1, HIGH);// led for alarm
+  }
+   
+}
+ 
+void vPeriodicTask(void *pvParameters){
+  while(1){
+    rtc.getDateTime(g_year, g_mon, g_day, g_hour, g_min, g_sec, g_week);
+    Serial.print(g_year, DEC);Serial.print("/");
+    Serial.print(g_mon, DEC); Serial.print("/");
+    Serial.print(g_day, DEC); Serial.print(" ");
+    Serial.print(g_hour, DEC); Serial.print(":");
+    Serial.print(g_min, DEC); Serial.print(":");
+    Serial.println(g_sec, DEC);
+    delay(1000);
+  }
+}
